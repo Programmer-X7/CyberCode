@@ -1,27 +1,21 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
-import "./App.css";
-import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import Home from "./pages/Home";
-import Login from "./pages/Login";
-import Layout from "./layouts/Layout";
-import Dashboard from "./pages/Dashboard";
-
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <Layout />,
-    children: [
-      { path: "/", element: <Home /> },
-      { path: "/dashboard", element: <Dashboard /> },
-      { path: "/do-login", element: <Login /> },
-    ],
-  },
-]);
+import { RouterProvider } from "react-router-dom";
+import { router } from "./routes.jsx";
+import { useEffect } from "react";
+import loadAuthFromCookies from "./utils/loadAuthFromCookies.js";
+import { Toaster } from "react-hot-toast";
 
 function App() {
-  return <RouterProvider router={router} />;
+  // Set login state on first load
+  useEffect(() => {
+    loadAuthFromCookies();
+  }, []);
+
+  return (
+    <div>
+      <Toaster />
+      <RouterProvider router={router} />
+    </div>
+  );
 }
 
 export default App;

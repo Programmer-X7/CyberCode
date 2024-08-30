@@ -1,46 +1,57 @@
 package in.smcoder.cybercode.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Table(name = "users")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
     @Id
     private String id;
+
+    @Column(unique = true, nullable = false)
     private String username;
+
+    @Column(nullable = false)
     private String password;
+
+    @Column(nullable = false)
     private String name;
+
+    @Column(nullable = false)
     private String profileImage;
+
+    @Column(nullable = false)
     private boolean active;
+
+    @Column(nullable = false)
     private String role;
 
-    @Column(name = "create_at")
-    private Date createdAt;
+    @Column(name = "create_at", nullable = false)
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
-    private Date updatedAt;
+    private LocalDateTime updatedAt;
 
-    // Pre-persist method to generate ID and set createdAt
+    // Generate ID and set createdAt before save
     @PrePersist
     public void prePersist() {
         this.id = generateCustomId();
-        this.createdAt = new Date();
-        this.updatedAt = new Date();
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
     }
 
-    // Pre-update method to set updatedAt
+    // set updatedAt before update
     @PreUpdate
     public void preUpdate() {
-        this.updatedAt = new Date();
+        this.updatedAt = LocalDateTime.now();
     }
 
     // Method to generate custom ID

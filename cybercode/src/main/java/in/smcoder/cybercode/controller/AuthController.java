@@ -1,12 +1,14 @@
 package in.smcoder.cybercode.controller;
 
+import in.smcoder.cybercode.dto.LoginRequestDto;
+import in.smcoder.cybercode.dto.LoginResponseDto;
 import in.smcoder.cybercode.entity.User;
 import in.smcoder.cybercode.repository.UserRepository;
 import in.smcoder.cybercode.utils.JwtTokenUtil;
 import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -14,8 +16,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -35,35 +35,20 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public void login(@RequestParam(name = "username") String username,
-                      @RequestParam(name = "password") String password,
-                      HttpServletResponse response) {
+    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto dto) {
 
-        this.doAuthenticate(username, password);
+        this.doAuthenticate(dto.getUsername(), dto.getPassword());
 
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-        String token = jwtTokenUtil.generateToken(userDetails);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(dto.getUsername());
 
-        // Create Cookie
-        // JwtToken
-        Cookie jwtCookie = new Cookie("auth_Token", token);
-        jwtCookie.setHttpOnly(false);
-        jwtCookie.setSecure(false);
-        jwtCookie.setPath("/");
-        jwtCookie.setMaxAge(7 * 24 * 60 * 60);  // 7 Days
-        response.addCookie(jwtCookie);
-
-        // User ID
+        // Fetch user Details
         User user = userRepository.findByUsername(userDetails.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("User name not found with username: " + userDetails.getUsername()));
-        Cookie userIdCookie = new Cookie("user_id", user.getId());
-        userIdCookie.setHttpOnly(false);
-        userIdCookie.setSecure(false);
-        userIdCookie.setPath("/");
-        userIdCookie.setMaxAge(7 * 24 * 60 * 60);  // 7 Days
-        response.addCookie(userIdCookie);
 
-        response.setStatus(HttpStatus.OK.value());
+        // Generate Jwt Token
+        String token = jwtTokenUtil.generateToken(userDetails);
+
+        return ResponseEntity.ok(new LoginResponseDto(user, token));
     }
 
     private void doAuthenticate(String username, String password) {

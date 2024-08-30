@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* The scrollbar itself */
+::-webkit-scrollbar {
+  width: 12px; /* Width of the scrollbar */
+}
+
+/* The draggable part of the scrollbar */
+::-webkit-scrollbar-thumb {
+  background-color: #7b7b7b; /* Color of the scrollbar thumb */
+  border-radius: 10px; /* Rounded corners for the thumb */
+}
+
+/* The track (part of the scrollbar not covered by the thumb) */
+::-webkit-scrollbar-track {
+  background-color: #434342; /* Color of the track */
+  border-radius: 10px; /* Rounded corners for the track */
+}
+
+/* The part of the scrollbar that you cannot see (just for visibility) */
+::-webkit-scrollbar-corner {
+  background-color: #434342; /* Color of the corner */
+}

@@ -36,21 +36,49 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
 
-                        .requestMatchers("/api/auth/**").permitAll()
+                                // Authentication Endpoints
+                                .requestMatchers("/api/auth/**").permitAll()    // Authentication: Login
 
-                        .requestMatchers("/api/public/**").permitAll()
-                        .requestMatchers("/api/private/**").hasAnyRole("CODER", "ADMIN")
+                                // User Endpoints
+                                .requestMatchers(HttpMethod.POST, "/api/users/create-coder").permitAll()  // Create Coder
+                                .requestMatchers(HttpMethod.POST, "/api/users/create-admin").hasRole("ADMIN")  // Create Admin
+                                .requestMatchers(HttpMethod.GET, "/api/users/all").hasRole("ADMIN") // Get All Users
+                                .requestMatchers(HttpMethod.GET, "/api/users/**").hasAnyRole("CODER", "ADMIN")  // Get User Details
+                                .requestMatchers(HttpMethod.PUT, "/api/users/update-details").hasAnyRole("CODER", "ADMIN")  // Update User Basic Details
+                                .requestMatchers(HttpMethod.PUT, "/api/users/update-password").hasAnyRole("CODER", "ADMIN") // Update User Password
+                                .requestMatchers(HttpMethod.PUT, "/api/users/update-status").hasRole("ADMIN")   // Update User Status
+                                .requestMatchers(HttpMethod.DELETE, "/api/users/**").hasAnyRole("CODER", "ADMIN")   // Delete User
 
-                        .requestMatchers(HttpMethod.POST, "/api/users/create-coder").permitAll()  // Create Coder
-                        .requestMatchers(HttpMethod.POST, "/api/users/create-admin").hasRole("ADMIN")  // Create Admin
-                        .requestMatchers(HttpMethod.GET, "/api/users/all").hasRole("ADMIN") // Get All Users
-                        .requestMatchers(HttpMethod.GET, "/api/users/**").hasAnyRole("CODER", "ADMIN")  // Get User Details
-                        .requestMatchers(HttpMethod.PUT, "/api/users/update-details").hasAnyRole("CODER", "ADMIN")  // Update User Basic Details
-                        .requestMatchers(HttpMethod.PUT, "/api/users/update-password").hasAnyRole("CODER", "ADMIN") // Update User Password
-                        .requestMatchers(HttpMethod.PUT, "/api/users/update-status").hasRole("ADMIN")   // Update User Status
-                        .requestMatchers(HttpMethod.DELETE, "/api/users/**").hasAnyRole("CODER", "ADMIN")   // Delete User
+                                // Problem Endpoints
+                                .requestMatchers(HttpMethod.POST, "/api/problems/create").hasRole("ADMIN")  // Create Problem
+                                .requestMatchers(HttpMethod.GET, "/api/problems/all").permitAll()   // Get All Problems
+                                .requestMatchers(HttpMethod.GET, "/api/problems/**").permitAll()    // Get Problem Details
+                                .requestMatchers(HttpMethod.GET, "/api/problems/tag/**").permitAll()    // Get Problem Details
+                                .requestMatchers(HttpMethod.GET, "/api/problems/company/**").permitAll()    // Get Problem Details
+                                .requestMatchers(HttpMethod.DELETE, "/api/problems/**").hasRole("ADMIN") // Delete Problem
 
-                        .anyRequest().authenticated()
+                                // Tag Endpoints
+                                .requestMatchers(HttpMethod.POST, "/api/tags/create").hasRole("ADMIN")  // Create Tag
+                                .requestMatchers(HttpMethod.GET, "/api/tags/all").permitAll()   // Get All tags
+                                .requestMatchers(HttpMethod.DELETE, "/api/tags/**").hasRole("ADMIN")    // Delete Tag
+
+                                // Company Endpoints
+                                .requestMatchers(HttpMethod.POST, "/api/companies/create").hasRole("ADMIN") // Create company
+                                .requestMatchers(HttpMethod.GET, "/api/companies/all").permitAll()  // Get all companies
+                                .requestMatchers(HttpMethod.DELETE, "/api/companies/**").hasRole("ADMIN")  // DeleteCompany
+
+                                // Note Endpoints
+                                .requestMatchers(HttpMethod.POST, "/api/notes/save").hasRole("CODER")   // Save or Update Note
+                                .requestMatchers(HttpMethod.GET, "/api/notes").hasRole("CODER") // Get Note
+                                .requestMatchers(HttpMethod.DELETE, "/api/notes/delete").hasRole("CODER")   // Delete Note
+
+                                // Star/Save Problem Endpoint
+                                .requestMatchers(HttpMethod.POST, "/api/starred-problems/star").hasRole("CODER")    // Star Problem
+                                .requestMatchers(HttpMethod.DELETE, "/api/starred-problems/unstar").hasRole("CODER")    // Unstar Problem
+                                .requestMatchers(HttpMethod.GET, "/api/starred-problems/**").hasRole("CODER")   // Get All Starred Problems by User
+                                .requestMatchers(HttpMethod.GET, "/api/starred-problems/has-starred").hasRole("CODER") // Is starred problem by User
+
+                                .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex.authenticationEntryPoint(authenticationEntryPoint))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
